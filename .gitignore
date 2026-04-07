@@ -1,0 +1,24 @@
+# Lazarus / FreePascal
+*.ppu
+*.o
+*.or
+*.compiled
+*.bak
+*.lps
+*.res
+
+# Backup / Temp
+*~
+*.tmp
+
+# IDE
+*.lazarus
+*.identcache
+
+# Linux
+*.so
+backup/
+lib/
+*.ppu
+*.o
+*.compiled
