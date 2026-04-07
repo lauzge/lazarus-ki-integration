@@ -546,7 +546,7 @@ object LAIChatForm: TLAIChatForm
     Top = 469
     Width = 184
     Anchors = [akRight, akBottom]
-    Caption = 'Apply Code'
+    Caption = 'Code übernehmen'
     TabOrder = 3
     OnClick = btnApplyCodeClick
   end

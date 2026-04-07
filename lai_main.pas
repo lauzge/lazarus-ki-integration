@@ -7,7 +7,8 @@ interface
 uses
   Classes, SysUtils, Forms, Controls,
   MenuIntf, IDECommands, IDEWindowIntf, // Wichtig für Fenster-Registrierung
-  lai_chatfrm; // Dein Chat-Formular
+  lai_chatfrm, // Dein Chat-Formular
+  SrcEditorIntf;
 
 procedure Register;
 
@@ -29,14 +30,28 @@ end;
 
 // Diese Prozedur wird aufgerufen, wenn man auf den Menüpunkt klickt
 procedure ShowAIChat(Sender: TObject);
+var
+  Code: String;
+  CurrentEditor: TSourceEditorInterface; // Variable für den Editor
 begin
-  // Wir erstellen das Fenster direkt, falls es nicht existiert
   if not Assigned(LAIChatForm) then
     LAIChatForm := TLAIChatForm.Create(Nil);
 
+  // Zuerst den aktiven Editor holen
+  CurrentEditor := SourceEditorManagerIntf.ActiveEditor;
+
+  if Assigned(CurrentEditor) and CurrentEditor.SelectionAvailable then
+    Code := CurrentEditor.Selection
+  else
+    Code := '';
+
   LAIChatForm.Show;
+  // Den Code an das Chat-Formular übergeben
+  LAIChatForm.SetInitialContext(Code);
   LAIChatForm.BringToFront;
 end;
+
+
 
 procedure Register;
 begin

@@ -24,7 +24,7 @@ type
     FLastAIResponse: String; // Speichert nur die reine letzte Antwort
     function ExtractCode(const FullText: String): String;
   public
-
+    procedure SetInitialContext(const ACode: String);
   end;
 
 var
@@ -40,152 +40,97 @@ uses
 
 { TLAIChatForm }
 
+procedure TLAIChatForm.FormCreate(Sender: TObject);
+begin
+  if Assigned(DockMaster) then DockMaster.MakeDockable(Self);
+  FLastAIResponse := ''; // Initialisierung gegen Laufzeitfehler
+end;
+
+procedure TLAIChatForm.SetInitialContext(const ACode: String);
+begin
+  if ACode <> '' then
+    memInput.Text := 'Hier ist mein Code:' + LineEnding + ACode + LineEnding + 'Frage dazu: ';
+end;
+
 procedure TLAIChatForm.btnSendClick(Sender: TObject);
 var
   Client: TFPHTTPClient;
-  RequestBody: TJSONObject;
   ResponseStream: TStringStream;
-  JSONData: TJSONData;
-  AIResponse: String;
+  RequestBody: TJSONObject;
 begin
   if Trim(memInput.Text) = '' then Exit;
-
-  // UI sperren während des Requests
   btnSend.Enabled := False;
+
   Client := TFPHTTPClient.Create(nil);
   ResponseStream := TStringStream.Create('');
   RequestBody := TJSONObject.Create;
-
   try
-    // Ollama JSON vorbereiten
     RequestBody.Add('model', 'llama3');
-    RequestBody.Add('prompt', memInput.Text);
+    RequestBody.Add('prompt', 'Antworte NUR mit Pascal-Code in Backticks. Aufgabe: ' + memInput.Text);
     RequestBody.Add('stream', False);
 
     Client.AddHeader('Content-Type', 'application/json');
     Client.RequestBody := TStringStream.Create(RequestBody.AsJSON);
 
     try
-      // POST an Ollama
       Client.Post('http://localhost:11434/api/generate', ResponseStream);
+      FLastAIResponse := TJSONObject(GetJSON(ResponseStream.DataString)).Strings['response'];
+      FLastAIResponse := StringReplace(FLastAIResponse, #10, LineEnding, [rfReplaceAll]);
 
-      // JSON Antwort verarbeiten
-      JSONData := GetJSON(ResponseStream.DataString);
-      try
-        if JSONData.JSONType = jtObject then
-        begin
-          AIResponse := TJSONObject(JSONData).Strings['response'];
-
-          // WICHTIG: Zeilenumbrüche für Windows/Lazarus korrigieren
-          // Ersetzt Linux-LF (#10) durch System-LineEnding (#13#10)
-          AIResponse := StringReplace(AIResponse, #10, LineEnding, [rfReplaceAll]);
-          // Doppelte Umbrüche bereinigen, falls vorhanden
-          AIResponse := StringReplace(AIResponse, #13#13#10, #13#10, [rfReplaceAll]);
-
-          FLastAIResponse := AIResponse; // Hier speichern wir nur die Antwort der KI
-          SynOutput.Lines.Add(AIResponse);
-
-          // Text ans Ende von SynEdit anfügen
-          SynOutput.Lines.BeginUpdate;
-          try
-            SynOutput.Lines.Add('--- ' + FormatDateTime('HH:NN', Now) + ' ---');
-
-            // Wir setzen den Cursor ans Ende und fügen den Text ein
-            SynOutput.CaretY := SynOutput.Lines.Count + 1;
-            SynOutput.SelText := AIResponse + LineEnding;
-          finally
-            SynOutput.Lines.EndUpdate;
-          end;
-
-          // Ans Ende scrollen
-          SynOutput.CaretY := SynOutput.Lines.Count;
-          memInput.Clear;
-        end;
-      finally
-        JSONData.Free;
-      end;
-
+      SynOutput.Lines.Add('--- KI ---');
+      SynOutput.Lines.Add(FLastAIResponse);
+      memInput.Clear;
     except
-      on E: Exception do
-        SynOutput.Lines.Add('FEHLER: ' + E.Message);
+      on E: Exception do ShowMessage('Fehler: ' + E.Message);
     end;
-
-    if Assigned(Client.RequestBody) then
-       Client.RequestBody.Free;
-
   finally
-    RequestBody.Free;
-    ResponseStream.Free;
-    Client.Free;
+    RequestBody.Free; ResponseStream.Free; Client.Free;
     btnSend.Enabled := True;
-    memInput.SetFocus;
   end;
 end;
-
-procedure TLAIChatForm.FormCreate(Sender: TObject);
-begin
-  // AnchorDocking Integration
-  if Assigned(DockMaster) then
-    DockMaster.MakeDockable(Self);
-
-  // Verhindert, dass das Fenster beim Schließen komplett zerstört wird,
-  // falls die IDE es nur verstecken will
-  Self.AllowDropFiles := True;
-end;
-
-
 
 procedure TLAIChatForm.btnApplyCodeClick(Sender: TObject);
 var
   Editor: TSourceEditorInterface;
+  CodeToInsert: String;
 begin
-  // Wir parsen nur die letzte Antwort, nicht den ganzen Chat-Verlauf!
-  Editor.Selection := ExtractCode(FLastAIResponse);
-  Self.Close;
+  if FLastAIResponse = '' then
+  begin
+    ShowMessage('Keine KI-Antwort vorhanden.');
+    Exit;
+  end;
+
+  CodeToInsert := ExtractCode(FLastAIResponse);
+  Editor := SourceEditorManagerIntf.ActiveEditor;
+
+  if Assigned(Editor) then
+  begin
+    Editor.Selection := CodeToInsert;
+  end else
+    ShowMessage('Kein aktiver Editor gefunden.');
 end;
 
 function TLAIChatForm.ExtractCode(const FullText: String): String;
 var
+  S: String;
   StartPos, EndPos: Integer;
-  WorkText: String;
 begin
-  Result := '';
-  WorkText := FullText;
-
-  // 1. Suche den LETZTEN Block mit ``` (falls mehrere Antworten im Chat sind)
-  StartPos := RPos('```', WorkText); // RPos sucht von hinten (Unit StrUtils nötig!)
-
+  S := FullText;
+  StartPos := Pos('```', S);
   if StartPos > 0 then
   begin
-    // Wir brauchen aber den ANFANG des letzten Blocks, also suchen wir das Paar davor
-    // Einfachere Logik: Wir nehmen den Text ab dem ersten ``` nach dem letzten Trenner
-    StartPos := Pos('```', WorkText);
+    Delete(S, 1, StartPos + 2);
+    // Erste Zeile nach ``` löschen (da steht oft 'pascal')
+    if Pos(LineEnding, S) > 0 then
+      Delete(S, 1, Pos(LineEnding, S) + Length(LineEnding) - 1);
 
-    if StartPos > 0 then
-    begin
-      Delete(WorkText, 1, StartPos + 2);
-
-      // Sprachbezeichner wie "pascal", "delphi" oder "free-pascal" entfernen
-      WorkText := TrimLeft(WorkText);
-      if Pos('pascal', LowerCase(Copy(WorkText, 1, 10))) = 1 then Delete(WorkText, 1, 6);
-      if Pos('delphi', LowerCase(Copy(WorkText, 1, 10))) = 1 then Delete(WorkText, 1, 6);
-
-      // Ende des Blocks suchen
-      EndPos := Pos('```', WorkText);
-      if EndPos > 0 then
-        Result := Trim(Copy(WorkText, 1, EndPos - 1))
-      else
-        Result := Trim(WorkText);
-    end;
-  end;
-
-  // Falls GAR KEINE Backticks gefunden wurden, geben wir den ganzen Text zurück
-  // (vielleicht hat die KI die Backticks vergessen)
-  if Result = '' then Result := FullText;
+    EndPos := Pos('```', S);
+    if EndPos > 0 then
+      Result := Trim(Copy(S, 1, EndPos - 1))
+    else
+      Result := Trim(S);
+  end else Result := Trim(FullText);
 end;
-
-
-
 
 end.
 
