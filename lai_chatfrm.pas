@@ -80,7 +80,10 @@ begin
   try
     // Ollama JSON vorbereiten
     RequestBody.Add('model', 'llama3');
-    RequestBody.Add('prompt', 'Antworte NUR mit Pascal-Code in Backticks. Aufgabe: ' + memInput.Text);
+    RequestBody.Add('prompt', 'Du bist ein FreePascal-Compiler-Assistent. ' +
+                'Gib NUR den Code zurück. Umschließe den Code mit ```pascal. ' +
+                'KEINE einleitenden oder abschließenden Anführungszeichen. ' +
+                'Aufgabe: ' + memInput.Text);
     RequestBody.Add('stream', False);
 
     Client.AddHeader('Content-Type', 'application/json');
@@ -170,33 +173,32 @@ begin
   Result := '';
   S := FullText;
 
-  // 1. Suche den Start der Backticks
+  // 1. Triple-Backticks suchen
   StartPos := Pos('```', S);
   if StartPos > 0 then
   begin
-    // Alles vor den Backticks UND die drei Backticks selbst löschen (+3)
     Delete(S, 1, StartPos + 2);
+    // Erste Zeile (Sprachbezeichner) entfernen
+    if Pos(#10, S) > 0 then Delete(S, 1, Pos(#10, S));
 
-    // Falls direkt nach den Backticks "pascal" oder "delphi" steht,
-    // löschen wir die erste Zeile komplett (bis zum ersten Linefeed)
-    if Pos(#10, S) > 0 then
-       Delete(S, 1, Pos(#10, S));
-
-    // 2. Suche das Ende (die schließenden Backticks)
     EndPos := Pos('```', S);
-    if EndPos > 0 then
-      Result := Copy(S, 1, EndPos - 1)
-    else
-      Result := S; // Falls kein Ende gefunden wurde
-  end
-  else
-    Result := FullText; // Falls gar keine Backticks da sind
+    if EndPos > 0 then S := Copy(S, 1, EndPos - 1);
+  end;
 
-  // Finales Säubern für Linux
-  Result := Trim(Result);
-  // Sicherstellen, dass keine Windows-Überbleibsel (#13) stören
-  Result := StringReplace(Result, #13, '', [rfReplaceAll]);
+  // 2. Aggressive Reinigung der Ränder
+  S := Trim(S);
+
+  // Wir entfernen in einer Schleife alle störenden Zeichen am Anfang und Ende
+  while (Length(S) > 0) and (S[1] in ['''', '"', '`']) do
+    Delete(S, 1, 1);
+
+  while (Length(S) > 0) and (S[Length(S)] in ['''', '"', '`']) do
+    Delete(S, Length(S), 1);
+
+  // 3. Finaler Linux-Check für Zeilenumbrüche
+  Result := StringReplace(Trim(S), #13, '', [rfReplaceAll]);
 end;
+
 
 end.
 
