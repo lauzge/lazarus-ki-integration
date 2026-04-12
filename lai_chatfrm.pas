@@ -6,7 +6,8 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, StdCtrls, SynEdit,
-  fphttpclient, fpjson, jsonparser, SynHighlighterPas, LazIDEIntf, IDEWindowIntf;
+  fphttpclient, fpjson, jsonparser, SynHighlighterPas, LazIDEIntf, IDEWindowIntf,
+  Clipbrd;
 
 type
 
@@ -49,22 +50,35 @@ end;
 procedure TLAIChatForm.SetInitialContext(const ACode: String);
 begin
   if ACode <> '' then
-    memInput.Text := 'Hier ist mein Code:' + LineEnding + ACode + LineEnding + 'Frage dazu: ';
+  begin
+    // Nutze .Text statt einer einfachen Zuweisung, damit das Memo
+    // den String neu parst und die Zeilenumbrüche erkennt
+    memInput.Lines.Text := 'Hier ist mein Code:' + LineEnding +
+                           ACode + LineEnding +
+                           'Frage dazu: ';
+    // Cursor ans Ende setzen
+    memInput.SelStart := Length(memInput.Text);
+  end;
 end;
+
 
 procedure TLAIChatForm.btnSendClick(Sender: TObject);
 var
   Client: TFPHTTPClient;
-  ResponseStream: TStringStream;
   RequestBody: TJSONObject;
+  ResponseStream: TStringStream;
+  JSONData: TJSONData;    // Fehlende Deklaration
+  AIResponse: String;     // Fehlende Deklaration
 begin
   if Trim(memInput.Text) = '' then Exit;
-  btnSend.Enabled := False;
 
+  btnSend.Enabled := False;
   Client := TFPHTTPClient.Create(nil);
   ResponseStream := TStringStream.Create('');
   RequestBody := TJSONObject.Create;
+
   try
+    // Ollama JSON vorbereiten
     RequestBody.Add('model', 'llama3');
     RequestBody.Add('prompt', 'Antworte NUR mit Pascal-Code in Backticks. Aufgabe: ' + memInput.Text);
     RequestBody.Add('stream', False);
@@ -73,41 +87,79 @@ begin
     Client.RequestBody := TStringStream.Create(RequestBody.AsJSON);
 
     try
+      // POST an Ollama
       Client.Post('http://localhost:11434/api/generate', ResponseStream);
-      FLastAIResponse := TJSONObject(GetJSON(ResponseStream.DataString)).Strings['response'];
-      FLastAIResponse := StringReplace(FLastAIResponse, #10, LineEnding, [rfReplaceAll]);
 
-      SynOutput.Lines.Add('--- KI ---');
-      SynOutput.Lines.Add(FLastAIResponse);
-      memInput.Clear;
+      // JSON Antwort verarbeiten
+      JSONData := GetJSON(ResponseStream.DataString);
+      try
+        if JSONData.JSONType = jtObject then
+        begin
+          AIResponse := TJSONObject(JSONData).Strings['response'];
+
+          // WICHTIG: Verwandle die Text-Zeichen "\n" in echte Linux-Umbrüche
+          AIResponse := StringReplace(AIResponse, '\n', #10, [rfReplaceAll]);
+          AIResponse := StringReplace(AIResponse, '\r', '', [rfReplaceAll]); // \r entfernen
+          AIResponse := AdjustLineBreaks(AIResponse, tlbsLF);
+
+          FLastAIResponse := AIResponse;
+          SynOutput.Lines.Text := AIResponse; // .Text erzwingt das Neuzeichnen der Zeilen
+          try
+            SynOutput.Lines.Add('--- KI Antwort ---');
+            // Wir nutzen Lines.Add für die formatierte Antwort
+            SynOutput.Lines.Add(AIResponse);
+            SynOutput.Lines.Add('');
+          finally
+            SynOutput.Lines.EndUpdate;
+          end;
+
+          // Ans Ende scrollen
+          SynOutput.CaretY := SynOutput.Lines.Count;
+          memInput.Clear;
+        end;
+      finally
+        JSONData.Free;
+      end;
+
     except
-      on E: Exception do ShowMessage('Fehler: ' + E.Message);
+      on E: Exception do
+        SynOutput.Lines.Add('FEHLER: ' + E.Message);
     end;
+
+    if Assigned(Client.RequestBody) then
+       Client.RequestBody.Free;
+
   finally
-    RequestBody.Free; ResponseStream.Free; Client.Free;
+    RequestBody.Free;
+    ResponseStream.Free;
+    Client.Free;
     btnSend.Enabled := True;
+    memInput.SetFocus;
   end;
 end;
+
 
 procedure TLAIChatForm.btnApplyCodeClick(Sender: TObject);
 var
   Editor: TSourceEditorInterface;
-  CodeToInsert: String;
+  CleanCode: String;
 begin
-  if FLastAIResponse = '' then
-  begin
-    ShowMessage('Keine KI-Antwort vorhanden.');
-    Exit;
-  end;
+  if FLastAIResponse = '' then Exit;
 
-  CodeToInsert := ExtractCode(FLastAIResponse);
   Editor := SourceEditorManagerIntf.ActiveEditor;
-
   if Assigned(Editor) then
   begin
-    Editor.Selection := CodeToInsert;
-  end else
-    ShowMessage('Kein aktiver Editor gefunden.');
+    CleanCode := ExtractCode(FLastAIResponse);
+
+    // Unter Linux/GTK2/Qt ist Selection die verlässlichste Eigenschaft.
+    // Da wir in ExtractCode nun AdjustLineBreaks/StringReplace nutzen,
+    // wird der Block hier korrekt als Mehrzeiler eingefügt.
+    Editor.Selection := CleanCode;
+
+    // Falls SetFocus auf ActiveView nicht geht, lassen wir es weg oder nutzen:
+    if Assigned(Editor.EditorControl) then
+      Editor.EditorControl.SetFocus;
+  end;
 end;
 
 function TLAIChatForm.ExtractCode(const FullText: String): String;
@@ -115,21 +167,35 @@ var
   S: String;
   StartPos, EndPos: Integer;
 begin
+  Result := '';
   S := FullText;
+
+  // 1. Suche den Start der Backticks
   StartPos := Pos('```', S);
   if StartPos > 0 then
   begin
+    // Alles vor den Backticks UND die drei Backticks selbst löschen (+3)
     Delete(S, 1, StartPos + 2);
-    // Erste Zeile nach ``` löschen (da steht oft 'pascal')
-    if Pos(LineEnding, S) > 0 then
-      Delete(S, 1, Pos(LineEnding, S) + Length(LineEnding) - 1);
 
+    // Falls direkt nach den Backticks "pascal" oder "delphi" steht,
+    // löschen wir die erste Zeile komplett (bis zum ersten Linefeed)
+    if Pos(#10, S) > 0 then
+       Delete(S, 1, Pos(#10, S));
+
+    // 2. Suche das Ende (die schließenden Backticks)
     EndPos := Pos('```', S);
     if EndPos > 0 then
-      Result := Trim(Copy(S, 1, EndPos - 1))
+      Result := Copy(S, 1, EndPos - 1)
     else
-      Result := Trim(S);
-  end else Result := Trim(FullText);
+      Result := S; // Falls kein Ende gefunden wurde
+  end
+  else
+    Result := FullText; // Falls gar keine Backticks da sind
+
+  // Finales Säubern für Linux
+  Result := Trim(Result);
+  // Sicherstellen, dass keine Windows-Überbleibsel (#13) stören
+  Result := StringReplace(Result, #13, '', [rfReplaceAll]);
 end;
 
 end.

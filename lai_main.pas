@@ -31,26 +31,23 @@ end;
 // Diese Prozedur wird aufgerufen, wenn man auf den Menüpunkt klickt
 procedure ShowAIChat(Sender: TObject);
 var
-  Code: String;
-  CurrentEditor: TSourceEditorInterface; // Variable für den Editor
+  SelectedCode: String;
 begin
   if not Assigned(LAIChatForm) then
     LAIChatForm := TLAIChatForm.Create(Nil);
 
-  // Zuerst den aktiven Editor holen
-  CurrentEditor := SourceEditorManagerIntf.ActiveEditor;
-
-  if Assigned(CurrentEditor) and CurrentEditor.SelectionAvailable then
-    Code := CurrentEditor.Selection
+  if Assigned(SourceEditorManagerIntf.ActiveEditor) then
+  begin
+    SelectedCode := SourceEditorManagerIntf.ActiveEditor.Selection;
+    // WICHTIG: Für Linux sicherstellen, dass Umbrüche sauber sind
+    SelectedCode := AdjustLineBreaks(SelectedCode, tlbsLF);
+  end
   else
-    Code := '';
+    SelectedCode := '';
 
+  LAIChatForm.SetInitialContext(SelectedCode);
   LAIChatForm.Show;
-  // Den Code an das Chat-Formular übergeben
-  LAIChatForm.SetInitialContext(Code);
-  LAIChatForm.BringToFront;
 end;
-
 
 
 procedure Register;
