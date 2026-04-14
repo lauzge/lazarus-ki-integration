@@ -12,7 +12,7 @@ Voraussetzungen
     Lazarus 4.x (oder höher).
     Ollama: Muss lokal installiert sein und laufen.
         Download: ollama.com
-        Modell ziehen: ollama run llama3 (oder dein bevorzugtes Modell).
+        Modell ziehen: ollama run CodeLlama (oder dein bevorzugtes Modell).
 
 Installation
 
