@@ -20,7 +20,9 @@ type
     SynOutput: TSynEdit;
     procedure btnApplyCodeClick(Sender: TObject);
     procedure btnSendClick(Sender: TObject);
+    procedure FormClose(Sender: TObject; var CloseAction: TCloseAction);
     procedure FormCreate(Sender: TObject);
+    procedure FormDestroy(Sender: TObject);
   private
     FLastAIResponse: String; // Speichert nur die reine letzte Antwort
     function ExtractCode(const FullText: String): String;
@@ -43,8 +45,9 @@ uses
 
 procedure TLAIChatForm.FormCreate(Sender: TObject);
 begin
-  if Assigned(DockMaster) then DockMaster.MakeDockable(Self);
-  FLastAIResponse := ''; // Initialisierung gegen Laufzeitfehler
+  // AnchorDocking registrieren
+  if Assigned(DockMaster) then
+    DockMaster.MakeDockable(Self);
 end;
 
 procedure TLAIChatForm.SetInitialContext(const ACode: String);
@@ -141,6 +144,19 @@ begin
   end;
 end;
 
+procedure TLAIChatForm.FormClose(Sender: TObject; var CloseAction: TCloseAction);
+begin
+  // Wir zerstören das Fenster NICHT, wir verstecken es nur.
+  // Das verhindert Laufzeitfehler beim erneuten Aufruf.
+  CloseAction := caHide;
+end;
+
+procedure TLAIChatForm.FormDestroy(Sender: TObject);
+begin
+  // Falls es doch zerstört wird, Variable auf nil setzen
+  if LAIChatForm = Self then
+    LAIChatForm := nil;
+end;
 
 procedure TLAIChatForm.btnApplyCodeClick(Sender: TObject);
 var

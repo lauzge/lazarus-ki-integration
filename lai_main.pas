@@ -17,43 +17,42 @@ implementation
 const
   AIChatWindowName = 'LAI_Chat_Window';
 
-// Diese Funktion erstellt das Fenster, wenn die IDE es anfordert
 procedure CreateAIChatWindow(Sender: TObject; aFormName: string; var AForm: TCustomForm; DoShow: boolean);
 begin
   if aFormName = AIChatWindowName then
   begin
+    // Nur hier wird das Fenster erstellt!
     AForm := TLAIChatForm.Create(nil);
     if DoShow then AForm.Show;
   end;
 end;
 
-
-// Diese Prozedur wird aufgerufen, wenn man auf den Menüpunkt klickt
 procedure ShowAIChat(Sender: TObject);
-var
-  SelectedCode: String;
 begin
+  // 1. Erstellen, falls es noch nie existierte
   if not Assigned(LAIChatForm) then
     LAIChatForm := TLAIChatForm.Create(Nil);
 
-  if Assigned(SourceEditorManagerIntf.ActiveEditor) then
-  begin
-    SelectedCode := SourceEditorManagerIntf.ActiveEditor.Selection;
-    // WICHTIG: Für Linux sicherstellen, dass Umbrüche sauber sind
-    SelectedCode := AdjustLineBreaks(SelectedCode, tlbsLF);
-  end
-  else
-    SelectedCode := '';
+  // 2. Sichtbarkeit im Widgetset und im Docking erzwingen
+  LAIChatForm.Visible := True;
 
-  LAIChatForm.SetInitialContext(SelectedCode);
+  // 3. Falls es gedockt ist, müssen wir es dem Manager "entreißen"
+  if LAIChatForm.Parent <> nil then
+    LAIChatForm.Parent.Visible := True;
+
   LAIChatForm.Show;
-end;
+  LAIChatForm.BringToFront;
+  LAIChatForm.SetFocus;
 
+  // 4. Kontext übergeben
+  if Assigned(SourceEditorManagerIntf.ActiveEditor) then
+    LAIChatForm.SetInitialContext(SourceEditorManagerIntf.ActiveEditor.Selection);
+end;
 
 procedure Register;
 begin
-  // Wir verzichten auf den WindowCreator-Service, wenn er Member-Fehler wirft
-  // und registrieren nur den Menübefehl.
+  // Wir verzichten auf IDEWindowCreators.Add, wenn es Abstürze verursacht.
+  // Wir registrieren NUR den Menübefehl. Das reicht für das manuelle Management.
   RegisterIDEMenuCommand(itmSecondaryTools, 'AI_Show_Chat',
     'KI Chat Fenster öffnen', nil, @ShowAIChat);
 end;

@@ -7,7 +7,9 @@ object LAIChatForm: TLAIChatForm
   ClientHeight = 505
   ClientWidth = 538
   LCLVersion = '4.6.0.0'
+  OnClose = FormClose
   OnCreate = FormCreate
+  OnDestroy = FormDestroy
   inline SynOutput: TSynEdit
     AnchorSideRight.Side = asrBottom
     AnchorSideBottom.Side = asrBottom
