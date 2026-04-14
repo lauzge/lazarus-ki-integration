@@ -8,7 +8,8 @@ uses
   Classes, SysUtils, Forms, Controls,
   MenuIntf, IDECommands, IDEWindowIntf, // Wichtig für Fenster-Registrierung
   lai_chatfrm, // Dein Chat-Formular
-  SrcEditorIntf;
+  SrcEditorIntf,
+  LCLType;
 
 procedure Register;
 
@@ -50,12 +51,28 @@ begin
 end;
 
 procedure Register;
+var
+  AICat: TIDECommandCategory;
+  IDEShortCut: TIDEShortCut;
 begin
-  // Wir verzichten auf IDEWindowCreators.Add, wenn es Abstürze verursacht.
-  // Wir registrieren NUR den Menübefehl. Das reicht für das manuelle Management.
+  // 1. Kategorie registrieren (Eltern-Kategorie, Name, Beschreibung)
+  // Wir nutzen nil als ersten Parameter für die Hauptkategorie
+  AICat := RegisterIDECommandCategory(nil, 'AICommands', 'KI Assistent');
+
+  // 2. Shortcut definieren (Strg+Alt+A)
+  // Wir nutzen direkt die Word/ShiftState Variante, um NullShortcut-Fehler zu vermeiden
+
+  // 3. Den Befehl registrieren
+  // Wir nutzen nil für das TNotifyEvent (6. Param)
+  // und @ShowAIChat für die TNotifyProcedure (7. Param)
+  RegisterIDECommand(AICat, 'ShowAIChatCommand', 'KI Chat öffnen',
+    VK_A, [ssCtrl, ssAlt], nil, @ShowAIChat);
+
+  // 4. Den Menüeintrag im Werkzeuge-Menü registrieren
   RegisterIDEMenuCommand(itmSecondaryTools, 'AI_Show_Chat',
     'KI Chat Fenster öffnen', nil, @ShowAIChat);
 end;
+
 
 end.
 

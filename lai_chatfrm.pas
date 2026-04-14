@@ -82,9 +82,10 @@ begin
 
   try
     // Ollama JSON vorbereiten
-    RequestBody.Add('model', 'llama3');
-    RequestBody.Add('prompt', 'Du bist ein FreePascal-Compiler-Assistent. ' +
-                'Gib NUR den Code zurück. Umschließe den Code mit ```pascal. ' +
+    RequestBody.Add('model', 'codellama');
+    RequestBody.Add('prompt', 'Du bist ein erfahrener Delphi/FreePascal Entwickler. ' +
+                'Schreibe NUR den benötigten Code ohne lange Erklärungen. ' +
+                'Umschließe den Code mit ```pascal. ' +
                 'KEINE einleitenden oder abschließenden Anführungszeichen. ' +
                 'Aufgabe: ' + memInput.Text);
     RequestBody.Add('stream', False);
