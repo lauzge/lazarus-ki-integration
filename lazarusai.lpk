@@ -19,28 +19,21 @@
         <Filename Value="lai_chatfrm.pas"/>
         <UnitName Value="lai_chatfrm"/>
       </Item>
+      <Item>
+        <Filename Value="lai_config.pas"/>
+        <UnitName Value="lai_config"/>
+      </Item>
+      <Item>
+        <Filename Value="lai_configfrm.pas"/>
+        <UnitName Value="lai_configfrm"/>
+      </Item>
     </Files>
     <RequiredPkgs>
       <Item>
         <PackageName Value="AnchorDockingDsgn"/>
       </Item>
       <Item>
-        <PackageName Value="AnchorDocking"/>
-      </Item>
-      <Item>
         <PackageName Value="SynEditDsgn"/>
-      </Item>
-      <Item>
-        <PackageName Value="SynEdit"/>
-      </Item>
-      <Item>
-        <PackageName Value="IDEIntf"/>
-      </Item>
-      <Item>
-        <PackageName Value="LCLBase"/>
-      </Item>
-      <Item>
-        <PackageName Value="FCL"/>
       </Item>
     </RequiredPkgs>
     <UsageOptions>

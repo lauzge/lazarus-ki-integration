@@ -9,7 +9,10 @@ uses
   MenuIntf, IDECommands, IDEWindowIntf, // Wichtig für Fenster-Registrierung
   lai_chatfrm, // Dein Chat-Formular
   SrcEditorIntf,
-  LCLType;
+  LCLType,
+  ProjectIntf,
+  lai_configfrm,
+  lai_config;
 
 procedure Register;
 
@@ -50,27 +53,27 @@ begin
     LAIChatForm.SetInitialContext(SourceEditorManagerIntf.ActiveEditor.Selection);
 end;
 
-procedure Register;
+procedure ShowAIOptions(Sender: TObject);
 var
-  AICat: TIDECommandCategory;
-  IDEShortCut: TIDEShortCut;
+  ConfigFrm: TLAIConfigForm; // Das ist dein neues Fenster
 begin
-  // 1. Kategorie registrieren (Eltern-Kategorie, Name, Beschreibung)
-  // Wir nutzen nil als ersten Parameter für die Hauptkategorie
-  AICat := RegisterIDECommandCategory(nil, 'AICommands', 'KI Assistent');
+  ConfigFrm := TLAIConfigForm.Create(nil);
+  try
+    ConfigFrm.ShowModal;
+  finally
+    ConfigFrm.Free;
+  end;
+end;
 
-  // 2. Shortcut definieren (Strg+Alt+A)
-  // Wir nutzen direkt die Word/ShiftState Variante, um NullShortcut-Fehler zu vermeiden
-
-  // 3. Den Befehl registrieren
-  // Wir nutzen nil für das TNotifyEvent (6. Param)
-  // und @ShowAIChat für die TNotifyProcedure (7. Param)
-  RegisterIDECommand(AICat, 'ShowAIChatCommand', 'KI Chat öffnen',
-    VK_A, [ssCtrl, ssAlt], nil, @ShowAIChat);
-
-  // 4. Den Menüeintrag im Werkzeuge-Menü registrieren
+procedure Register;
+begin
+  // Menüpunkt für den Chat (hast du schon)
   RegisterIDEMenuCommand(itmSecondaryTools, 'AI_Show_Chat',
     'KI Chat Fenster öffnen', nil, @ShowAIChat);
+
+  // NEU: Menüpunkt für die Einstellungen
+  RegisterIDEMenuCommand(itmSecondaryTools, 'AI_Show_Options',
+    'KI Assistent Einstellungen...', nil, @ShowAIOptions);
 end;
 
 

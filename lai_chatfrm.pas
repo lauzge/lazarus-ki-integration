@@ -7,7 +7,7 @@ interface
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, StdCtrls, SynEdit,
   fphttpclient, fpjson, jsonparser, SynHighlighterPas, LazIDEIntf, IDEWindowIntf,
-  Clipbrd;
+  Clipbrd, lai_config;
 
 type
 
@@ -82,7 +82,7 @@ begin
 
   try
     // Ollama JSON vorbereiten
-    RequestBody.Add('model', 'codellama');
+    RequestBody.Add('model', LAIConfig.ModelName);
     RequestBody.Add('prompt', 'Du bist ein erfahrener Delphi/FreePascal Entwickler. ' +
                 'Schreibe NUR den benötigten Code ohne lange Erklärungen. ' +
                 'Umschließe den Code mit ```pascal. ' +
@@ -95,7 +95,7 @@ begin
 
     try
       // POST an Ollama
-      Client.Post('http://localhost:11434/api/generate', ResponseStream);
+      Client.Post(LAIConfig.ServerURL, ResponseStream);
 
       // JSON Antwort verarbeiten
       JSONData := GetJSON(ResponseStream.DataString);

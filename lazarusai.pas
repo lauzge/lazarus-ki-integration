@@ -8,7 +8,7 @@ unit LazarusAI;
 interface
 
 uses
-  lai_main, lai_chatfrm, LazarusPackageIntf;
+  lai_main, lai_chatfrm, lai_config, lai_configfrm, LazarusPackageIntf;
 
 implementation
 
