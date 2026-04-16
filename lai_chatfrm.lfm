@@ -1,7 +1,7 @@
 object LAIChatForm: TLAIChatForm
-  Left = -30
+  Left = 48
   Height = 505
-  Top = 19
+  Top = 50
   Width = 538
   Caption = 'KI Assistent'
   ClientHeight = 505

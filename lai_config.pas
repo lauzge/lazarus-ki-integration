@@ -5,7 +5,7 @@ unit lai_config;
 interface
 
 uses
-  Classes, SysUtils, XMLConf; // XMLConf ist Standard-FPC und IMMER da
+  Classes, SysUtils, XMLConf;
 
 type
   TLAIConfig = class
@@ -13,12 +13,16 @@ type
     FModelName: string;
     FServerURL: string;
     FConfigPath: string;
+    FLanguage: string;
+    FAPIKey: string;     // NEU: Hier das Feld hinzufügen
   public
     constructor Create;
     procedure Load;
     procedure Save;
     property ModelName: string read FModelName write FModelName;
     property ServerURL: string read FServerURL write FServerURL;
+    property Language: string read FLanguage write FLanguage;
+    property APIKey: string read FAPIKey write FAPIKey; // NEU: Hier die Property
   end;
 
 var
@@ -28,10 +32,11 @@ implementation
 
 constructor TLAIConfig.Create;
 begin
-  // IncludeTrailingPathDelimiter ist in SysUtils und funktioniert überall
   FConfigPath := IncludeTrailingPathDelimiter(GetUserDir + '.lazarus') + 'lazarusai_settings.xml';
   FModelName := 'codellama';
   FServerURL := 'http://localhost:11434/api/generate';
+  FLanguage := 'Deutsch';
+  FAPIKey := ''; // Standardmäßig leer
 end;
 
 procedure TLAIConfig.Load;
@@ -41,8 +46,10 @@ begin
   Config := TXMLConfig.Create(nil);
   try
     Config.Filename := FConfigPath;
-    FModelName := Config.GetValue('ModelName', 'codellama');
-    FServerURL := Config.GetValue('ServerURL', 'http://localhost:11434/api/generate');
+    FModelName := String(Config.GetValue('ModelName', 'codellama'));
+    FServerURL := String(Config.GetValue('ServerURL', 'http://localhost:11434/api/generate'));
+    FLanguage := String(Config.GetValue('Language', 'Deutsch'));
+    FAPIKey := String(Config.GetValue('APIKey', '')); // Laden
   finally
     Config.Free;
   end;
@@ -57,6 +64,8 @@ begin
     Config.Filename := FConfigPath;
     Config.SetValue('ModelName', FModelName);
     Config.SetValue('ServerURL', FServerURL);
+    Config.SetValue('Language', FLanguage);
+    Config.SetValue('APIKey', FAPIKey); // Speichern
     Config.Flush;
   finally
     Config.Free;

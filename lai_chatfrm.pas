@@ -69,9 +69,13 @@ procedure TLAIChatForm.btnSendClick(Sender: TObject);
 var
   Client: TFPHTTPClient;
   RequestBody: TJSONObject;
+  MessagesArray, MsgObject: TJSONObject; // Für OpenAI Format
+  JSONArray: TJSONArray;                 // Für OpenAI Format
   ResponseStream: TStringStream;
-  JSONData: TJSONData;    // Fehlende Deklaration
-  AIResponse: String;     // Fehlende Deklaration
+  JSONData: TJSONData;
+  AIResponse: String;
+  FullPrompt: String;
+  IsChatApi: Boolean;
 begin
   if Trim(memInput.Text) = '' then Exit;
 
@@ -80,54 +84,79 @@ begin
   ResponseStream := TStringStream.Create('');
   RequestBody := TJSONObject.Create;
 
-  try
-    // Ollama JSON vorbereiten
-    RequestBody.Add('model', LAIConfig.ModelName);
-    RequestBody.Add('prompt', 'Du bist ein erfahrener Delphi/FreePascal Entwickler. ' +
-                'Schreibe NUR den benötigten Code ohne lange Erklärungen. ' +
-                'Umschließe den Code mit ```pascal. ' +
-                'KEINE einleitenden oder abschließenden Anführungszeichen. ' +
-                'Aufgabe: ' + memInput.Text);
-    RequestBody.Add('stream', False);
+  // Prüfen, ob wir das OpenAI "Chat" Format brauchen (URLs mit /v1/chat/completions)
+  IsChatApi := Pos('v1/chat', LowerCase(LAIConfig.ServerURL)) > 0;
 
+  try
+    FullPrompt := 'Du bist ein erfahrener Delphi/FreePascal Entwickler. ' +
+                  'Deine Antwortsprache ist strikt: ' + LAIConfig.Language + '. ' +
+                  'Schreibe NUR den benötigten Code ohne lange Erklärungen. ' +
+                  'Umschließe den Code mit ```pascal. ' +
+                  'KEINE einleitenden oder abschließenden Anführungszeichen. ' +
+                  'Erklärungen müssen in ' + LAIConfig.Language + ' verfasst sein. ' +
+                  'Aufgabe: ' + memInput.Text;
+
+    // JSON Body je nach API-Typ aufbauen
+    if IsChatApi then
+    begin
+      // OpenAI Chat Format (v1/chat/completions)
+      RequestBody.Add('model', LAIConfig.ModelName);
+      JSONArray := TJSONArray.Create;
+      MsgObject := TJSONObject.Create;
+      MsgObject.Add('role', 'user');
+      MsgObject.Add('content', FullPrompt);
+      JSONArray.Add(MsgObject);
+      RequestBody.Add('messages', JSONArray);
+    end
+    else
+    begin
+      // Standard Ollama Format (/api/generate)
+      RequestBody.Add('model', LAIConfig.ModelName);
+      RequestBody.Add('prompt', FullPrompt);
+      RequestBody.Add('stream', False);
+    end;
+
+    // Header setzen
+    if LAIConfig.APIKey <> '' then
+      Client.AddHeader('Authorization', 'Bearer ' + LAIConfig.APIKey);
     Client.AddHeader('Content-Type', 'application/json');
+
     Client.RequestBody := TStringStream.Create(RequestBody.AsJSON);
 
     try
-      // POST an Ollama
       Client.Post(LAIConfig.ServerURL, ResponseStream);
-
-      // JSON Antwort verarbeiten
       JSONData := GetJSON(ResponseStream.DataString);
       try
         if JSONData.JSONType = jtObject then
         begin
-          AIResponse := TJSONObject(JSONData).Strings['response'];
+          // Antwort extrahieren: "response" bei Ollama, "choices[0].message.content" bei OpenAI
+          if IsChatApi then
+            AIResponse := JSONData.FindPath('choices[0].message.content').AsString
+          else
+            AIResponse := TJSONObject(JSONData).Strings['response'];
 
-          // WICHTIG: Verwandle die Text-Zeichen "\n" in echte Linux-Umbrüche
+          // Formatierung für Linux/Lazarus korrigieren
           AIResponse := StringReplace(AIResponse, '\n', #10, [rfReplaceAll]);
-          AIResponse := StringReplace(AIResponse, '\r', '', [rfReplaceAll]); // \r entfernen
+          AIResponse := StringReplace(AIResponse, '\r', '', [rfReplaceAll]);
           AIResponse := AdjustLineBreaks(AIResponse, tlbsLF);
 
           FLastAIResponse := AIResponse;
-          SynOutput.Lines.Text := AIResponse; // .Text erzwingt das Neuzeichnen der Zeilen
+
+          SynOutput.Lines.BeginUpdate;
           try
             SynOutput.Lines.Add('--- KI Antwort ---');
-            // Wir nutzen Lines.Add für die formatierte Antwort
             SynOutput.Lines.Add(AIResponse);
             SynOutput.Lines.Add('');
           finally
             SynOutput.Lines.EndUpdate;
           end;
 
-          // Ans Ende scrollen
           SynOutput.CaretY := SynOutput.Lines.Count;
           memInput.Clear;
         end;
       finally
         JSONData.Free;
       end;
-
     except
       on E: Exception do
         SynOutput.Lines.Add('FEHLER: ' + E.Message);
@@ -144,6 +173,7 @@ begin
     memInput.SetFocus;
   end;
 end;
+
 
 procedure TLAIChatForm.FormClose(Sender: TObject; var CloseAction: TCloseAction);
 begin

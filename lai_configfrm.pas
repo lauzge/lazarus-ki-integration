@@ -17,11 +17,19 @@ type
     btnDetectModels: TButton;
     btnSave: TButton;
     cbModel: TComboBox;
+    cbProvider: TComboBox;
+    edtAPIKey: TEdit;
+    edtLanguage: TEdit;
     edtURL: TEdit;
+    lblProvider: TLabel;
+    lblAPIKey: TLabel;
+    lblLanguage: TLabel;
     lblURL: TLabel;
     lblModel: TLabel;
     procedure btnDetectModelsClick(Sender: TObject);
     procedure btnSaveClick(Sender: TObject);
+    procedure cbProviderChange(Sender: TObject);
+    procedure FormCreate(Sender: TObject);
   private
     procedure LoadSettings;
     procedure SaveSettings;
@@ -89,16 +97,47 @@ begin
   if Owner is TForm then TForm(Owner).ModalResult := mrOk;
 end;
 
+procedure TLAIConfigForm.cbProviderChange(Sender: TObject);
+begin
+  case cbProvider.ItemIndex of
+    0: begin // Ollama
+         edtURL.Text := 'http://localhost:11434/api/generate';
+         cbModel.Text := 'codellama';
+       end;
+    1: begin // LM Studio
+         edtURL.Text := 'http://localhost:1234/v1/chat/completions';
+         cbModel.Text := 'model-identifier';
+       end;
+    2: begin // OpenAI
+         edtURL.Text := 'https://openai.com';
+         cbModel.Text := 'gpt-4-turbo';
+       end;
+    3: begin // Mistral
+         edtURL.Text := 'https://mistral.ai';
+         cbModel.Text := 'mistral-medium';
+       end;
+  end;
+end;
+
+procedure TLAIConfigForm.FormCreate(Sender: TObject);
+begin
+  LoadSettings;
+end;
+
 procedure TLAIConfigForm.LoadSettings;
 begin
   edtURL.Text := LAIConfig.ServerURL;
   cbModel.Text := LAIConfig.ModelName;
+  edtLanguage.Text := LAIConfig.Language;
+  edtAPIKey.Text := LAIConfig.APIKey;
 end;
 
 procedure TLAIConfigForm.SaveSettings;
 begin
   LAIConfig.ServerURL := edtURL.Text;
   LAIConfig.ModelName := cbModel.Text;
+  LAIConfig.Language := edtLanguage.Text;
+  LAIConfig.APIKey := edtAPIKey.Text;
   LAIConfig.Save; // Schreibt es in die XML-Datei
 end;
 
