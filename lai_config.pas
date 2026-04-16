@@ -46,10 +46,10 @@ begin
   Config := TXMLConfig.Create(nil);
   try
     Config.Filename := FConfigPath;
-    FModelName := String(Config.GetValue('ModelName', 'codellama'));
-    FServerURL := String(Config.GetValue('ServerURL', 'http://localhost:11434/api/generate'));
-    FLanguage := String(Config.GetValue('Language', 'Deutsch'));
-    FAPIKey := String(Config.GetValue('APIKey', '')); // Laden
+    FModelName := Config.GetValue('ModelName', 'codellama');
+    FServerURL := Config.GetValue('ServerURL', 'http://localhost:11434/api/generate');
+    FLanguage := Config.GetValue('Language', 'Deutsch');
+    FAPIKey := Config.GetValue('APIKey', ''); // Laden
   finally
     Config.Free;
   end;

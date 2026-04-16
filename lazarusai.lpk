@@ -27,6 +27,10 @@
         <Filename Value="lai_configfrm.pas"/>
         <UnitName Value="lai_configfrm"/>
       </Item>
+      <Item>
+        <Filename Value="lai_strings.pas"/>
+        <UnitName Value="lai_strings"/>
+      </Item>
     </Files>
     <RequiredPkgs>
       <Item>

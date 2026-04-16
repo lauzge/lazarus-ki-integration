@@ -12,7 +12,9 @@ uses
   LCLType,
   ProjectIntf,
   lai_configfrm,
-  lai_config;
+  lai_config,
+  LCLTranslator,
+  Translations;
 
 procedure Register;
 

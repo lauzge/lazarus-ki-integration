@@ -9,6 +9,13 @@ uses
   fphttpclient, fpjson, jsonparser, SynHighlighterPas, LazIDEIntf, IDEWindowIntf,
   Clipbrd, lai_config;
 
+resourcestring
+  rsFormName = 'KI Assistent';
+  rsThinking = 'KI denkt nach... bitte warten...';
+  rsResponseIn = 'Antwort in %.2f Sek. erhalten';
+  rsSend = 'Senden';
+  rsApply = 'Code übernehmen';
+
 type
 
   { TLAIChatForm }
@@ -16,6 +23,7 @@ type
   TLAIChatForm = class(TForm)
     btnSend: TButton;
     btnApplyCode: TButton;
+    lblStatus: TLabel;
     memInput: TMemo;
     SynOutput: TSynEdit;
     procedure btnApplyCodeClick(Sender: TObject);
@@ -45,6 +53,10 @@ uses
 
 procedure TLAIChatForm.FormCreate(Sender: TObject);
 begin
+  Caption := rsFormName;
+  lblStatus.Caption:='';
+  btnSend.Caption:=rsSend;
+  btnApplyCode.Caption:=rsApply;
   // AnchorDocking registrieren
   if Assigned(DockMaster) then
     DockMaster.MakeDockable(Self);
@@ -67,24 +79,33 @@ end;
 
 procedure TLAIChatForm.btnSendClick(Sender: TObject);
 var
+  StartTime: QWord;
+  Duration: Double;
   Client: TFPHTTPClient;
-  RequestBody: TJSONObject;
-  MessagesArray, MsgObject: TJSONObject; // Für OpenAI Format
-  JSONArray: TJSONArray;                 // Für OpenAI Format
+  RequestBody, MsgObject: TJSONObject;
+  JSONArray: TJSONArray;
   ResponseStream: TStringStream;
-  JSONData: TJSONData;
+  JSONData, TempNode: TJSONData;
   AIResponse: String;
   FullPrompt: String;
   IsChatApi: Boolean;
 begin
   if Trim(memInput.Text) = '' then Exit;
 
+  StartTime := GetTickCount64; // Startzeit merken
+  // Feedback an: Button sperren und Text anzeigen
   btnSend.Enabled := False;
+  lblStatus.Caption := rsThinking;
+  lblStatus.Repaint; // Erzwingt das sofortige Zeichnen unter Linux
+
   Client := TFPHTTPClient.Create(nil);
+  // Wir setzen ein Timeout, falls die KI mal hängen bleibt (z.B. 60 Sekunden)
+  Client.IOTimeout := 60000;
+
   ResponseStream := TStringStream.Create('');
   RequestBody := TJSONObject.Create;
 
-  // Prüfen, ob wir das OpenAI "Chat" Format brauchen (URLs mit /v1/chat/completions)
+  // Erkennt automatisch, ob wir das OpenAI-Chat-Format benötigen
   IsChatApi := Pos('v1/chat', LowerCase(LAIConfig.ServerURL)) > 0;
 
   try
@@ -96,7 +117,6 @@ begin
                   'Erklärungen müssen in ' + LAIConfig.Language + ' verfasst sein. ' +
                   'Aufgabe: ' + memInput.Text;
 
-    // JSON Body je nach API-Typ aufbauen
     if IsChatApi then
     begin
       // OpenAI Chat Format (v1/chat/completions)
@@ -116,7 +136,6 @@ begin
       RequestBody.Add('stream', False);
     end;
 
-    // Header setzen
     if LAIConfig.APIKey <> '' then
       Client.AddHeader('Authorization', 'Bearer ' + LAIConfig.APIKey);
     Client.AddHeader('Content-Type', 'application/json');
@@ -125,19 +144,27 @@ begin
 
     try
       Client.Post(LAIConfig.ServerURL, ResponseStream);
+
+      // Fehlerprüfung: Wenn der Stream leer ist, gab es ein Problem
+      if ResponseStream.Size = 0 then
+      begin
+         SynOutput.Lines.Add('FEHLER: Keine Antwort vom Server erhalten.');
+         Exit;
+      end;
+
       JSONData := GetJSON(ResponseStream.DataString);
       try
-        if JSONData.JSONType = jtObject then
-        begin
-          // Antwort extrahieren: "response" bei Ollama, "choices[0].message.content" bei OpenAI
-          if IsChatApi then
-            AIResponse := JSONData.FindPath('choices[0].message.content').AsString
-          else
-            AIResponse := TJSONObject(JSONData).Strings['response'];
+        AIResponse := '';
+        if IsChatApi then
+          AIResponse := JSONData.FindPath('choices[0].message.content').AsString
+        else
+          AIResponse := TJSONObject(JSONData).Strings['response'];
 
-          // Formatierung für Linux/Lazarus korrigieren
+        if AIResponse <> '' then
+        begin
+          // Wichtig für Linux: Erst Unescape, dann Formatierung
           AIResponse := StringReplace(AIResponse, '\n', #10, [rfReplaceAll]);
-          AIResponse := StringReplace(AIResponse, '\r', '', [rfReplaceAll]);
+          AIResponse := StringReplace(AIResponse, '\"', '"', [rfReplaceAll]);
           AIResponse := AdjustLineBreaks(AIResponse, tlbsLF);
 
           FLastAIResponse := AIResponse;
@@ -145,8 +172,9 @@ begin
           SynOutput.Lines.BeginUpdate;
           try
             SynOutput.Lines.Add('--- KI Antwort ---');
-            SynOutput.Lines.Add(AIResponse);
-            SynOutput.Lines.Add('');
+            // Nutze .Text für den gesamten Block, damit SynEdit die Zeilen umbricht
+            SynOutput.SelStart := Length(SynOutput.Text);
+            SynOutput.SelText := AIResponse + LineEnding;
           finally
             SynOutput.Lines.EndUpdate;
           end;
@@ -159,21 +187,23 @@ begin
       end;
     except
       on E: Exception do
-        SynOutput.Lines.Add('FEHLER: ' + E.Message);
+        SynOutput.Lines.Add('HTTP FEHLER: ' + E.Message);
     end;
 
-    if Assigned(Client.RequestBody) then
-       Client.RequestBody.Free;
+    if Assigned(Client.RequestBody) then Client.RequestBody.Free;
+
+    // Zeit berechnen (Millisekunden in Sekunden)
+    Duration := (GetTickCount64 - StartTime) / 1000;
+    lblStatus.Caption := Format(rsResponseIn, [Duration]);
 
   finally
+    btnSend.Enabled := True;
     RequestBody.Free;
     ResponseStream.Free;
     Client.Free;
-    btnSend.Enabled := True;
     memInput.SetFocus;
   end;
 end;
-
 
 procedure TLAIChatForm.FormClose(Sender: TObject; var CloseAction: TCloseAction);
 begin
