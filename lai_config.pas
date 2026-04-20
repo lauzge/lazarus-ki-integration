@@ -5,7 +5,7 @@ unit lai_config;
 interface
 
 uses
-  Classes, SysUtils, XMLConf;
+  Classes, SysUtils, XMLConf, lai_strings;
 
 type
   TLAIConfig = class

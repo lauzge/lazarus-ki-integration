@@ -1,7 +1,7 @@
 object LAIConfigForm: TLAIConfigForm
-  Left = 361
+  Left = 51
   Height = 373
-  Top = 0
+  Top = 132
   Width = 337
   ClientHeight = 373
   ClientWidth = 337

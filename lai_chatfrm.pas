@@ -7,14 +7,7 @@ interface
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, StdCtrls, SynEdit,
   fphttpclient, fpjson, jsonparser, SynHighlighterPas, LazIDEIntf, IDEWindowIntf,
-  Clipbrd, lai_config;
-
-resourcestring
-  rsFormName = 'KI Assistent';
-  rsThinking = 'KI denkt nach... bitte warten...';
-  rsResponseIn = 'Antwort in %.2f Sek. erhalten';
-  rsSend = 'Senden';
-  rsApply = 'Code übernehmen';
+  Clipbrd, lai_config, lai_strings;
 
 type
 
@@ -56,7 +49,7 @@ begin
   Caption := rsFormName;
   lblStatus.Caption:='';
   btnSend.Caption:=rsSend;
-  btnApplyCode.Caption:=rsApply;
+  btnApplyCode.Caption:=rsApplyCode;
   // AnchorDocking registrieren
   if Assigned(DockMaster) then
     DockMaster.MakeDockable(Self);

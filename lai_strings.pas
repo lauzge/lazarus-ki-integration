@@ -6,6 +6,7 @@ interface
 
 resourcestring
   // Chatfenster
+  rsFormName = 'KI Assistent';
   rsThinking = 'KI arbeitet...';
   rsResponseIn = 'Antwort in %.2f Sek. erhalten';
   rsSend = 'Senden';

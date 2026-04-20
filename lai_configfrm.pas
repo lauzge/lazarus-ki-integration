@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, StdCtrls, lai_config, fphttpclient,
-  fpjson, jsonparser, Dialogs;
+  fpjson, jsonparser, Dialogs, lai_strings;
 
 
 type
