@@ -1,0 +1,6 @@
+{"version":1,"strings":[
+{"hash":250733812,"name":"tlaichatform.caption","sourcebytes":[75,73,32,65,115,115,105,115,116,101,110,116],"value":"KI Assistent"},
+{"hash":94128830,"name":"tlaichatform.btnsend.caption","sourcebytes":[83,101,110,100,101,110],"value":"Senden"},
+{"hash":8421070,"name":"tlaichatform.btnapplycode.caption","sourcebytes":[67,111,100,101,32,195,188,98,101,114,110,101,104,109,101,110],"value":"Code \u00FCbernehmen"},
+{"hash":197459294,"name":"tlaichatform.lblstatus.caption","sourcebytes":[75,73,32,97,114,98,101,105,116,101,116,46,46,46],"value":"KI arbeitet..."}
+]}

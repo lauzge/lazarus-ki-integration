@@ -1,0 +1,35 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"POT-Creation-Date: \n"
+"PO-Revision-Date: \n"
+"Last-Translator: Volker Stark\n"
+"Language-Team: \n"
+"Language: en\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 3.9\n"
+
+#: lai_chatfrm.rsapply
+#, fuzzy
+msgid "Code übernehmen"
+msgstr "Apply code"
+
+#: lai_chatfrm.rsformname
+#, fuzzy
+msgid "KI Assistent"
+msgstr "AI assistant"
+
+#: lai_chatfrm.rsresponsein
+#, object-pascal-format
+msgid "Antwort in %.2f Sek. erhalten"
+msgstr "Response received in %.2f seconds"
+
+#: lai_chatfrm.rssend
+msgid "Senden"
+msgstr "Send"
+
+#: lai_chatfrm.rsthinking
+msgid "KI denkt nach... bitte warten..."
+msgstr "AI is thinking... please wait..."

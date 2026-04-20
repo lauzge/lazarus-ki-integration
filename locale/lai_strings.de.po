@@ -1,0 +1,113 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"POT-Creation-Date: \n"
+"PO-Revision-Date: \n"
+"Last-Translator: Volker Stark\n"
+"Language-Team: \n"
+"Language: de\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 3.9\n"
+
+#: lai_strings.rsapplycode
+msgid "Code übernehmen"
+msgstr "Code übernehmen"
+
+#: lai_strings.rsconfigtitle
+msgid "KI Assistent Einstellungen"
+msgstr "KI Assistent Einstellungen"
+
+#: lai_strings.rsconnollamafaild
+msgid "Verbindung zu Ollama fehlgeschlagen: "
+msgstr "Verbindung zu Ollama fehlgeschlagen: "
+
+#: lai_strings.rsdetect
+msgid "Modelle laden"
+msgstr "Modelle laden"
+
+#: lai_strings.rserrorheader
+#, object-pascal-format
+msgid "FEHLER: %s"
+msgstr "FEHLER: %s"
+
+#: lai_strings.rsformname
+msgid "KI Assistent"
+msgstr "KI Assistent"
+
+#: lai_strings.rsfullprompt01
+msgid ""
+"Du bist ein erfahrener Delphi/FreePascal Entwickler. Deine Antwortsprache "
+"ist strikt: "
+msgstr ""
+"Du bist ein erfahrener Delphi/FreePascal Entwickler. Deine Antwortsprache "
+"ist strikt: "
+
+#: lai_strings.rsfullprompt02
+msgid ""
+"Schreibe NUR den benötigten Code ohne lange Erklärungen. Umschließe den Code "
+"mit ```pascal. KEINE einleitenden oder abschließenden Anführungszeichen. "
+"Erklärungen müssen in "
+msgstr ""
+"Schreibe NUR den benötigten Code ohne lange Erklärungen. Umschließe den Code "
+"mit ```pascal. KEINE einleitenden oder abschließenden Anführungszeichen. "
+"Erklärungen müssen in "
+
+#: lai_strings.rsfullprompt03
+msgctxt "lai_strings.rsfullprompt03"
+msgid " verfasst sein. Aufgabe: "
+msgstr " verfasst sein. Aufgabe: "
+
+#: lai_strings.rshttperror
+msgid "HTTP FEHLER: "
+msgstr "HTTP FEHLER: "
+
+#: lai_strings.rslanguage
+msgid "Sprache:"
+msgstr "Sprache:"
+
+#: lai_strings.rsmodel
+msgid "Modell:"
+msgstr "Modell:"
+
+#: lai_strings.rsmodelfound
+msgid " Modelle gefunden!"
+msgstr " Modelle gefunden!"
+
+#: lai_strings.rsmodelnotfount
+msgid "Keine Modelle gefunden. Läuft Ollama?"
+msgstr "Keine Modelle gefunden. Läuft Ollama?"
+
+#: lai_strings.rsmycode
+msgid "Hier ist mein Code:"
+msgstr "Hier ist mein Code:"
+
+#: lai_strings.rsprovider
+msgid "Anbieter"
+msgstr "Anbieter"
+
+#: lai_strings.rsquestionabout
+msgid "Frage dazu: "
+msgstr "Frage dazu: "
+
+#: lai_strings.rsresponsein
+#, object-pascal-format
+msgid "Antwort in %.2f Sek. erhalten"
+msgstr "Antwort in %.2f Sek. erhalten"
+
+#: lai_strings.rsresponseout
+msgid "FEHLER: Keine Antwort vom Server erhalten."
+msgstr "FEHLER: Keine Antwort vom Server erhalten."
+
+#: lai_strings.rssave
+msgid "Speichern"
+msgstr "Speichern"
+
+#: lai_strings.rssend
+msgid "Senden"
+msgstr "Senden"
+
+#: lai_strings.rsthinking
+msgid "KI arbeitet..."
+msgstr "KI arbeitet..."

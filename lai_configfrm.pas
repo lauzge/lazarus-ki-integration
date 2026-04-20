@@ -78,13 +78,13 @@ begin
       end;
 
       if cbModel.Items.Count > 0 then
-        ShowMessage(IntToStr(cbModel.Items.Count) + ' Modelle gefunden!')
+        ShowMessage(IntToStr(cbModel.Items.Count) + rsModelFound)
       else
-        ShowMessage('Keine Modelle gefunden. Läuft Ollama?');
+        ShowMessage(rsModelNotFount);
 
     except
       on E: Exception do
-        ShowMessage('Verbindung zu Ollama fehlgeschlagen: ' + E.Message);
+        ShowMessage(rsConnOllamaFaild + E.Message);
     end;
   finally
     Client.Free;
@@ -121,6 +121,11 @@ end;
 
 procedure TLAIConfigForm.FormCreate(Sender: TObject);
 begin
+  lblProvider.Caption:=rsProvider;
+  lblModel.Caption:=rsModel;
+  lblLanguage.Caption:=rsLanguage;
+  btnSave.Caption:=rsSave;
+  btnDetectModels.Caption:=rsDetect;
   LoadSettings;
 end;
 

@@ -1,0 +1,12 @@
+{"version":1,"strings":[
+{"hash":180571745,"name":"tlaiconfigform.cbmodel.text","sourcebytes":[99,111,100,101,108,108,97,109,97],"value":"codellama"},
+{"hash":153657269,"name":"tlaiconfigform.edturl.text","sourcebytes":[104,116,116,112,58,47,47,108,111,99,97,108,104,111,115,116,58,49,49,52,51,52,47,97,112,105,47,103,101,110,101,114,97,116,101],"value":"http://localhost:11434/api/generate"},
+{"hash":5528252,"name":"tlaiconfigform.lblmodel.caption","sourcebytes":[77,111,100,101,108],"value":"Model"},
+{"hash":23148,"name":"tlaiconfigform.lblurl.caption","sourcebytes":[85,82,76],"value":"URL"},
+{"hash":55097806,"name":"tlaiconfigform.btndetectmodels.caption","sourcebytes":[77,111,100,101,108,108,101,32,108,97,100,101,110],"value":"Modelle laden"},
+{"hash":200914670,"name":"tlaiconfigform.btnsave.caption","sourcebytes":[83,112,101,105,99,104,101,114,110],"value":"Speichern"},
+{"hash":181189080,"name":"tlaiconfigform.edtlanguage.text","sourcebytes":[68,101,117,116,115,99,104],"value":"Deutsch"},
+{"hash":175667637,"name":"tlaiconfigform.lbllanguage.caption","sourcebytes":[83,112,114,97,99,104,101],"value":"Sprache"},
+{"hash":73720265,"name":"tlaiconfigform.lblapikey.caption","sourcebytes":[65,80,73,75,101,121],"value":"APIKey"},
+{"hash":158138290,"name":"tlaiconfigform.lblprovider.caption","sourcebytes":[80,114,111,118,105,100,101,114],"value":"Provider"}
+]}

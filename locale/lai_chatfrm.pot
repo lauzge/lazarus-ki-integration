@@ -1,0 +1,24 @@
+msgid ""
+msgstr "Content-Type: text/plain; charset=UTF-8"
+
+#: lai_chatfrm.rsapply
+msgid "Code übernehmen"
+msgstr ""
+
+#: lai_chatfrm.rsformname
+msgid "KI Assistent"
+msgstr ""
+
+#: lai_chatfrm.rsresponsein
+#, object-pascal-format
+msgid "Antwort in %.2f Sek. erhalten"
+msgstr ""
+
+#: lai_chatfrm.rssend
+msgid "Senden"
+msgstr ""
+
+#: lai_chatfrm.rsthinking
+msgid "KI denkt nach... bitte warten..."
+msgstr ""
+

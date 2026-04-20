@@ -61,9 +61,9 @@ begin
   begin
     // Nutze .Text statt einer einfachen Zuweisung, damit das Memo
     // den String neu parst und die Zeilenumbrüche erkennt
-    memInput.Lines.Text := 'Hier ist mein Code:' + LineEnding +
+    memInput.Lines.Text := rsMyCode + LineEnding +
                            ACode + LineEnding +
-                           'Frage dazu: ';
+                           rsQuestionAbout;
     // Cursor ans Ende setzen
     memInput.SelStart := Length(memInput.Text);
   end;
@@ -102,13 +102,9 @@ begin
   IsChatApi := Pos('v1/chat', LowerCase(LAIConfig.ServerURL)) > 0;
 
   try
-    FullPrompt := 'Du bist ein erfahrener Delphi/FreePascal Entwickler. ' +
-                  'Deine Antwortsprache ist strikt: ' + LAIConfig.Language + '. ' +
-                  'Schreibe NUR den benötigten Code ohne lange Erklärungen. ' +
-                  'Umschließe den Code mit ```pascal. ' +
-                  'KEINE einleitenden oder abschließenden Anführungszeichen. ' +
-                  'Erklärungen müssen in ' + LAIConfig.Language + ' verfasst sein. ' +
-                  'Aufgabe: ' + memInput.Text;
+    FullPrompt := rsFullPrompt01 + LAIConfig.Language + '. ' +
+                  rsFullPrompt02 + LAIConfig.Language + rsFullPrompt03 +
+                  memInput.Text;
 
     if IsChatApi then
     begin
@@ -141,7 +137,7 @@ begin
       // Fehlerprüfung: Wenn der Stream leer ist, gab es ein Problem
       if ResponseStream.Size = 0 then
       begin
-         SynOutput.Lines.Add('FEHLER: Keine Antwort vom Server erhalten.');
+         SynOutput.Lines.Add(rsResponseOut);
          Exit;
       end;
 
@@ -180,7 +176,7 @@ begin
       end;
     except
       on E: Exception do
-        SynOutput.Lines.Add('HTTP FEHLER: ' + E.Message);
+        SynOutput.Lines.Add(rsHttpError + E.Message);
     end;
 
     if Assigned(Client.RequestBody) then Client.RequestBody.Free;

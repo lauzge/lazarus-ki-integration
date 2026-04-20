@@ -1,0 +1,94 @@
+msgid ""
+msgstr "Content-Type: text/plain; charset=UTF-8"
+
+#: lai_strings.rsapplycode
+msgid "Code übernehmen"
+msgstr ""
+
+#: lai_strings.rsconfigtitle
+msgid "KI Assistent Einstellungen"
+msgstr ""
+
+#: lai_strings.rsconnollamafaild
+msgid "Verbindung zu Ollama fehlgeschlagen: "
+msgstr ""
+
+#: lai_strings.rsdetect
+msgid "Modelle laden"
+msgstr ""
+
+#: lai_strings.rserrorheader
+#, object-pascal-format
+msgid "FEHLER: %s"
+msgstr ""
+
+#: lai_strings.rsformname
+msgid "KI Assistent"
+msgstr ""
+
+#: lai_strings.rsfullprompt01
+msgid "Du bist ein erfahrener Delphi/FreePascal Entwickler. Deine Antwortsprache ist strikt: "
+msgstr ""
+
+#: lai_strings.rsfullprompt02
+msgid "Schreibe NUR den benötigten Code ohne lange Erklärungen. Umschließe den Code mit ```pascal. KEINE einleitenden oder abschließenden Anführungszeichen. Erklärungen müssen in "
+msgstr ""
+
+#: lai_strings.rsfullprompt03
+msgctxt "lai_strings.rsfullprompt03"
+msgid " verfasst sein. Aufgabe: "
+msgstr ""
+
+#: lai_strings.rshttperror
+msgid "HTTP FEHLER: "
+msgstr ""
+
+#: lai_strings.rslanguage
+msgid "Sprache:"
+msgstr ""
+
+#: lai_strings.rsmodel
+msgid "Modell:"
+msgstr ""
+
+#: lai_strings.rsmodelfound
+msgid " Modelle gefunden!"
+msgstr ""
+
+#: lai_strings.rsmodelnotfount
+msgid "Keine Modelle gefunden. Läuft Ollama?"
+msgstr ""
+
+#: lai_strings.rsmycode
+msgid "Hier ist mein Code:"
+msgstr ""
+
+#: lai_strings.rsprovider
+msgid "Anbieter"
+msgstr ""
+
+#: lai_strings.rsquestionabout
+msgid "Frage dazu: "
+msgstr ""
+
+#: lai_strings.rsresponsein
+#, object-pascal-format
+msgid "Antwort in %.2f Sek. erhalten"
+msgstr ""
+
+#: lai_strings.rsresponseout
+msgid "FEHLER: Keine Antwort vom Server erhalten."
+msgstr ""
+
+#: lai_strings.rssave
+msgid "Speichern"
+msgstr ""
+
+#: lai_strings.rssend
+msgid "Senden"
+msgstr ""
+
+#: lai_strings.rsthinking
+msgid "KI arbeitet..."
+msgstr ""
+

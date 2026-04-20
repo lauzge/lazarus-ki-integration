@@ -80,18 +80,25 @@ begin
   // 2. Pfad zum languages-Ordner ermitteln
   // Unter Linux liegen installierte Pakete meist in ~/.lazarus/onlinepackagemanager/...
   // Wir nutzen die sicherste Methode, um den Pfad zur Laufzeit zu finden:
-  PODirectory := AppendPathDelim(ExtractFilePath(ParamStr(0))) + 'languages';
+  PODirectory := AppendPathDelim(ExtractFilePath(ParamStr(0))) + 'locale';
 
   // FALLBACK: Falls ParamStr(0) nicht hilft, suchen wir relativ zur Unit
   // (In Lazarus 4.6 funktioniert oft dieser direkte Weg):
-  if not DirectoryExists(PODirectory) then
-    PODirectory := '/home/' + GetEnvironmentVariable('USER') + '/.lazarus/languages'; // Beispielpfad
-
   // 3. Übersetzungen laden
-  // Wir laden die Strings für die Unit 'lai_strings'
-  if Lang <> '' then
+  if DirectoryExists(PODirectory) then
+  begin
+    // Übersetzt die manuellen Resourcestrings
     Translations.TranslateUnitResourceStrings('lai_strings',
-      PODirectory + '/LazarusAI.%s.po', Lang, '');
+      PODirectory + '/lai_strings.%s.po', Lang, '');
+
+    // Übersetzt die Texte auf dem Formular (Buttons, Labels)
+    Translations.TranslateUnitResourceStrings('lai_chatfrm',
+      PODirectory + '/lai_chatfrm.%s.po', Lang, '');
+
+    // Falls du das Konfigurationsfenster auch übersetzt hast:
+    Translations.TranslateUnitResourceStrings('lai_configfrm',
+      PODirectory + '/lai_configfrm.%s.po', Lang, '');
+  end;
 
   // ... hier folgt deine restliche Register-Logik (Menüs, Shortcuts)
   // Menüpunkt für den Chat (hast du schon)

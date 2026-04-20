@@ -6,6 +6,7 @@ Features
     Ollama Integration: Nutzt lokale LLMs (z.B. Llama3 oder CodeLlama).
     Code-Extraktion: Erkennt Pascal-Code in der KI-Antwort und erlaubt die Übernahme per Klick.
     Kontext-Support: Markierter Code im Editor kann direkt an den Chat gesendet werden.
+    Supported Languages: German (Native), English
 
 Voraussetzungen
 
