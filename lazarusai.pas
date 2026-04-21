@@ -8,7 +8,10 @@ unit LazarusAI;
 interface
 
 uses
-  lai_main, lai_chatfrm, lai_config, lai_configfrm, lai_strings, 
+  {$IFDEF WINDOWS}
+  Windows,
+  {$ENDIF}
+  lai_main, lai_chatfrm, lai_config, lai_configfrm, lai_strings,
   LazarusPackageIntf;
 
 implementation

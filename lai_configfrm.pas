@@ -5,6 +5,9 @@ unit lai_configfrm;
 interface
 
 uses
+  {$IFDEF WINDOWS}
+  Windows,
+  {$ENDIF}
   Classes, SysUtils, Forms, Controls, StdCtrls, lai_config, fphttpclient,
   fpjson, jsonparser, Dialogs, lai_strings;
 

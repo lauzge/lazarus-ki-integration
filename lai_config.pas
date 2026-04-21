@@ -5,6 +5,9 @@ unit lai_config;
 interface
 
 uses
+  {$IFDEF WINDOWS}
+  Windows,
+  {$ENDIF}
   Classes, SysUtils, XMLConf, lai_strings;
 
 type

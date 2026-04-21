@@ -5,6 +5,9 @@ unit lai_main;
 interface
 
 uses
+  {$IFDEF WINDOWS}
+  Windows,
+  {$ENDIF}
   Classes, SysUtils, Forms, Controls, Dialogs, LCLIntf, LazFileUtils,
   MenuIntf, IDECommands,
 //  ProjPackIntf, // Erforderlich für den Zugriff auf Paket-Pfade
