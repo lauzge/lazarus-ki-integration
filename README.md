@@ -8,6 +8,8 @@ Features
     Kontext-Support: Markierter Code im Editor kann direkt an den Chat gesendet werden.
     Supported Languages: German (Native), English
 
+![Lazarus AI Assistant Vorschau](preview.png)
+
 Voraussetzungen
 
     Lazarus 4.x (oder höher).
