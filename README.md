@@ -1,30 +1,26 @@
-Lazarus AI Assistant
-Ein Plugin für die Lazarus IDE (getestet mit v4.6), das eine KI-Unterstützung direkt in die Entwicklungsumgebung integriert – ähnlich wie GitHub Copilot, aber lokal und datenschutzfreundlich.
-Features
+Lazarus AI Assistant v1.2 🚀
+Ein leistungsstarkes Open-Source-Plugin für die Lazarus IDE, das KI-Unterstützung (LLMs) direkt in deinen Workflow integriert. Entwickelt für Lazarus 4.6+ unter Linux, aber auch kompatibel mit Windows.
+Jetzt mit voller Icon-Unterstützung und Andock-Funktion!
+✨ Features
 
-    Andockbares Chat-Fenster: Integriert sich nahtlos in das Lazarus-Layout.
-    Ollama Integration: Nutzt lokale LLMs (z.B. Llama3 oder CodeLlama).
-    Code-Extraktion: Erkennt Pascal-Code in der KI-Antwort und erlaubt die Übernahme per Klick.
-    Kontext-Support: Markierter Code im Editor kann direkt an den Chat gesendet werden.
-    Supported Languages: German (Native), English
+    Andockbares Chat-Fenster: Integriert sich nahtlos über das AnchorDocking-System in dein IDE-Layout.
+    Multi-KI Support: Nutze lokale Modelle via Ollama oder LM Studio sowie Cloud-Dienste wie OpenAI (ChatGPT).
+    Intelligente Code-Übernahme: Erkennt Pascal-Code in KI-Antworten und ersetzt markierte Bereiche im Editor mit nur einem Klick.
+    Auto-Modell-Erkennung: Lädt installierte Modelle automatisch von deinem lokalen Ollama-Server.
+    Internationalisierung (i18n): Vollständig übersetzt in Deutsch und Englisch.
+    Konfigurations-Dialog: Bequeme Einstellung von Provider, URL, Modell, API-Key und Antwortsprache.
+    Smart Shortcuts: Öffne den Chat blitzschnell mit Strg+Alt+A.
 
 ![Lazarus AI Assistant Vorschau](preview.png)
 
-Voraussetzungen
+🛠 Voraussetzungen
 
-    Lazarus 4.x (oder höher).
-    Ollama: Muss lokal installiert sein und laufen.
-        Download: ollama.com
-        Modell ziehen: ollama run CodeLlama (oder dein bevorzugtes Modell).
+    Lazarus IDE: Version 4.x oder höher.
+    KI-Backend:
+        Lokal (empfohlen): Installiere Ollama und lade ein Modell (z.B. ollama pull codellama).
+        Cloud: Ein gültiger API-Key für OpenAI-kompatible Dienste.
 
-Installation
+🚀 Installation
 
-    Klone dieses Repository in deinen Lazarus-Komponenten-Ordner.
-    Öffne die Datei LazarusAI.lpk in Lazarus über Paket > Paket-Datei (.lpk) öffnen....
-    Klicke auf Kompilieren und anschließend auf Nutzung > Installieren.
-    Lazarus wird neu kompiliert und startet mit dem neuen Plugin.
-    Du findest den Assistenten unter Werkzeuge > KI Chat Fenster öffnen.
-
-Lizenz
-MIT License
+    Klone dieses Repository in deinen Lazarus-Komponenten-Ordner:
 
