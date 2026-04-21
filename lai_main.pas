@@ -7,16 +7,19 @@ interface
 uses
   Classes, SysUtils, Forms, Controls, Dialogs, LCLIntf, LazFileUtils,
   MenuIntf, IDECommands,
-  ProjPackIntf, // Erforderlich für den Zugriff auf Paket-Pfade
+//  ProjPackIntf, // Erforderlich für den Zugriff auf Paket-Pfade
   IDEWindowIntf, // Wichtig für Fenster-Registrierung
   lai_chatfrm, // Dein Chat-Formular
-  lai_strings,
+//  lai_strings,
   SrcEditorIntf,
   lai_configfrm,
   lai_config,
   DefaultTranslator,
   LCLTranslator,  // Für GetLanguageIDs
-  Translations;
+  Translations,
+  Graphics,
+  LazLogger,
+  LResources;
 
 procedure Register;
 
@@ -73,6 +76,8 @@ procedure Register;
 var
   Lang: String;
   PODirectory: String;
+  AI_PNG: TPortableNetworkGraphic;
+  MenuItem: TIDEMenuCommand;
 begin
   // 1. Sprache ermitteln (aus LCLTranslator)
   Lang := SetDefaultLang(''); // Ermittelt die Systemsprache (z.B. 'de')
@@ -102,13 +107,29 @@ begin
 
   // ... hier folgt deine restliche Register-Logik (Menüs, Shortcuts)
   // Menüpunkt für den Chat (hast du schon)
-  RegisterIDEMenuCommand(itmSecondaryTools, 'AI_Show_Chat',
+  MenuItem := RegisterIDEMenuCommand(itmSecondaryTools, 'AI_Show_Chat',
     'KI Chat Fenster öffnen', nil, @ShowAIChat);
 
   // NEU: Menüpunkt für die Einstellungen
   RegisterIDEMenuCommand(itmSecondaryTools, 'AI_Show_Options',
     'KI Assistent Einstellungen...', nil, @ShowAIOptions);
+
+  if Assigned(MenuItem) then
+  begin
+    AI_PNG := TPortableNetworkGraphic.Create;
+    try
+      // Wir laden das PNG explizit mit der richtigen Klasse
+      AI_PNG.LoadFromLazarusResource('ai_icon');
+      // Danach weisen wir es dem Menüpunkt-Bitmap zu (Lazarus konvertiert intern)
+      MenuItem.Bitmap.Assign(AI_PNG);
+    finally
+      AI_PNG.Free;
+    end;
+  end;
 end;
+
+initialization
+  {$I icons.lrs}
 
 end.
 

@@ -10,6 +10,7 @@ uses
 type
   TLAIConfig = class
   private
+    FProvider: String;
     FModelName: string;
     FServerURL: string;
     FConfigPath: string;
@@ -19,6 +20,7 @@ type
     constructor Create;
     procedure Load;
     procedure Save;
+    property Provider: string read FProvider write FProvider;
     property ModelName: string read FModelName write FModelName;
     property ServerURL: string read FServerURL write FServerURL;
     property Language: string read FLanguage write FLanguage;
@@ -33,6 +35,7 @@ implementation
 constructor TLAIConfig.Create;
 begin
   FConfigPath := IncludeTrailingPathDelimiter(GetUserDir + '.lazarus') + 'lazarusai_settings.xml';
+  FProvider := 'Ollama';
   FModelName := 'codellama';
   FServerURL := 'http://localhost:11434/api/generate';
   FLanguage := 'Deutsch';
@@ -46,6 +49,7 @@ begin
   Config := TXMLConfig.Create(nil);
   try
     Config.Filename := FConfigPath;
+    FProvider := Config.GetValue('Provider', 'Ollama');
     FModelName := Config.GetValue('ModelName', 'codellama');
     FServerURL := Config.GetValue('ServerURL', 'http://localhost:11434/api/generate');
     FLanguage := Config.GetValue('Language', 'Deutsch');
@@ -62,6 +66,7 @@ begin
   Config := TXMLConfig.Create(nil);
   try
     Config.Filename := FConfigPath;
+    Config.SetValue('Provider', FProvider);
     Config.SetValue('ModelName', FModelName);
     Config.SetValue('ServerURL', FServerURL);
     Config.SetValue('Language', FLanguage);

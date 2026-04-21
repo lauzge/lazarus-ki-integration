@@ -101,18 +101,22 @@ procedure TLAIConfigForm.cbProviderChange(Sender: TObject);
 begin
   case cbProvider.ItemIndex of
     0: begin // Ollama
+         cbProvider.Text:='Ollama';
          edtURL.Text := 'http://localhost:11434/api/generate';
          cbModel.Text := 'codellama';
        end;
     1: begin // LM Studio
+         cbProvider.Text:='LM Studio';
          edtURL.Text := 'http://localhost:1234/v1/chat/completions';
          cbModel.Text := 'model-identifier';
        end;
     2: begin // OpenAI
+         cbProvider.Text:='Open AI';
          edtURL.Text := 'https://openai.com';
          cbModel.Text := 'gpt-4-turbo';
        end;
     3: begin // Mistral
+         cbProvider.Text:='Mistral';
          edtURL.Text := 'https://mistral.ai';
          cbModel.Text := 'mistral-medium';
        end;
@@ -131,6 +135,7 @@ end;
 
 procedure TLAIConfigForm.LoadSettings;
 begin
+  cbProvider.Text:=LAIConfig.Provider;
   edtURL.Text := LAIConfig.ServerURL;
   cbModel.Text := LAIConfig.ModelName;
   edtLanguage.Text := LAIConfig.Language;
@@ -139,6 +144,7 @@ end;
 
 procedure TLAIConfigForm.SaveSettings;
 begin
+  LAIConfig.Provider :=  cbProvider.Text;
   LAIConfig.ServerURL := edtURL.Text;
   LAIConfig.ModelName := cbModel.Text;
   LAIConfig.Language := edtLanguage.Text;

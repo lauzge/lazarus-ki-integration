@@ -45,11 +45,22 @@ uses
 { TLAIChatForm }
 
 procedure TLAIChatForm.FormCreate(Sender: TObject);
+var
+  AI_PNG: TPortableNetworkGraphic;
 begin
   Caption := rsFormName;
   lblStatus.Caption:='';
   btnSend.Caption:=rsSend;
   btnApplyCode.Caption:=rsApplyCode;
+
+  AI_PNG := TPortableNetworkGraphic.Create;
+  try
+    AI_PNG.LoadFromLazarusResource('ai_icon');
+    Self.Icon.Assign(AI_PNG); // Weist das PNG dem Fenster-Icon zu
+  finally
+    AI_PNG.Free;
+  end;
+
   // AnchorDocking registrieren
   if Assigned(DockMaster) then
     DockMaster.MakeDockable(Self);
