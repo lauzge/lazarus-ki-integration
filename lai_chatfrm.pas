@@ -106,9 +106,24 @@ begin
   lblStatus.Repaint; // Erzwingt das sofortige Zeichnen unter Linux
 
   Client := TFPHTTPClient.Create(nil);
+  {$IFDEF WINDOWS}
+  // Windows-Fixes:
+  // Wir setzen keine "Keep"-Properties, sondern steuern es rein über die Header
+  Client.AllowRedirect := True;
+  Client.IOTimeout := 120000; // 2 Minuten Zeit geben
+
+  // Header setzen (Connection: close ist der Schlüssel für Windows)
+  Client.AddHeader('Connection', 'close');
+  Client.AddHeader('Content-Type', 'application/json; charset=UTF-8');
+  Client.AddHeader('Accept', 'application/json');
+
+  // DER FIX FÜR DEN BODY: Wir erzwingen UTF8-Encoding beim Erstellen des Streams
+  Client.RequestBody := TStringStream.Create(RequestBody.AsJSON, TEncoding.UTF8);
+
+  {$ELSE}
   // Wir setzen ein Timeout, falls die KI mal hängen bleibt (z.B. 60 Sekunden)
   Client.IOTimeout := 60000;
-
+  {$ENDIF}
   ResponseStream := TStringStream.Create('');
   RequestBody := TJSONObject.Create;
 
@@ -146,6 +161,10 @@ begin
     Client.RequestBody := TStringStream.Create(RequestBody.AsJSON);
 
     try
+      {$IFDEF WINDOWS}
+      Client.AddHeader('Connection', 'close');
+      Client.ResponseHeaders.Clear;
+      {$ENDIF}
       Client.Post(LAIConfig.ServerURL, ResponseStream);
 
       // Fehlerprüfung: Wenn der Stream leer ist, gab es ein Problem
